@@ -1,35 +1,42 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ProductCard from '../components/ProductCard';
+import { productAPI } from '../services/apiService';
 
 const Clothes = () => {
-    const clothingItems = [
-        {
-            id: 1,
-            name: 'T-Shirt',
-            price: 25000,
-            imageUrl: '/images/clothes/tshirt.jpg',
-        },
-        {
-            id: 2,
-            name: 'Jeans',
-            price: 50000,
-            imageUrl: '/images/clothes/jeans.jpg',
-        },
-        {
-            id: 3,
-            name: 'Jacket',
-            price: 75000,
-            imageUrl: '/images/clothes/jacket.jpg',
-        },
-    ];
+    const [products, setProducts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                setIsLoading(true);
+                const data = await productAPI.getAllProducts('Clothes');
+                setProducts(data || []);
+            } catch (err) {
+                setError('Failed to load clothing items');
+                console.error(err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, []);
 
     return (
-        <div>
+        <div className="category-page">
             <h1>Clothing Items</h1>
+            {isLoading && <p>Loading products...</p>}
+            {error && <p className="error">{error}</p>}
             <div className="product-list">
-                {clothingItems.map(item => (
-                    <ProductCard key={item.id} product={item} />
-                ))}
+                {products.length > 0 ? (
+                    products.map((product: any) => (
+                        <ProductCard key={product._id || product.id} product={product} />
+                    ))
+                ) : (
+                    !isLoading && <p>No clothing items available</p>
+                )}
             </div>
         </div>
     );

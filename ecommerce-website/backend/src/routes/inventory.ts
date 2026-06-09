@@ -1,22 +1,18 @@
 import { Router } from 'express';
-import InventoryController from '../controllers/inventoryController';
+import inventoryController from '../controllers/inventoryController';
 
 const router = Router();
-const inventoryController = new InventoryController();
 
 // Route to get all inventory items
-router.get('/', inventoryController.getAllItems);
+router.get('/', inventoryController.getInventory);
 
-// Route to get a specific inventory item by ID
-router.get('/:id', inventoryController.getItemById);
+// Route to get inventory by category
+router.get('/category/:category', inventoryController.getInventoryByCategory);
 
-// Route to add a new inventory item
-router.post('/', inventoryController.addItem);
+// Route to get low stock items
+router.get('/low-stock', inventoryController.getLowStockItems);
 
-// Route to update an existing inventory item
-router.put('/:id', inventoryController.updateItem);
-
-// Route to delete an inventory item
-router.delete('/:id', inventoryController.deleteItem);
+// Route to update stock for a product
+router.put('/:id/stock', inventoryController.updateStock);
 
 export default router;

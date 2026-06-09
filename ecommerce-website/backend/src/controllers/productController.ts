@@ -1,18 +1,21 @@
+import { Request, Response } from 'express';
+import Product from '../models/Product';
+
 class ProductController {
-    async getAllProducts(req, res) {
-        // Logic to fetch all products from the database
+    async getAllProducts(req: Request, res: Response) {
         try {
-            const products = await Product.find(); // Assuming Product is a model
+            const { category } = req.query;
+            const query = category ? { category } : {};
+            const products = await Product.find(query).sort({ createdAt: -1 });
             res.status(200).json(products);
         } catch (error) {
             res.status(500).json({ message: 'Error fetching products', error });
         }
     }
 
-    async getProductById(req, res) {
-        // Logic to fetch a single product by ID
-        const { id } = req.params;
+    async getProductById(req: Request, res: Response) {
         try {
+            const { id } = req.params;
             const product = await Product.findById(id);
             if (!product) {
                 return res.status(404).json({ message: 'Product not found' });
@@ -23,10 +26,23 @@ class ProductController {
         }
     }
 
-    async createProduct(req, res) {
-        // Logic to create a new product
-        const newProduct = new Product(req.body);
+    async createProduct(req: Request, res: Response) {
         try {
+            const { name, price, category, description, imageUrl, stock } = req.body;
+
+            if (!name || !price || !category || !description || !imageUrl) {
+                return res.status(400).json({ message: 'Missing required fields' });
+            }
+
+            const newProduct = new Product({
+                name,
+                price,
+                category,
+                description,
+                imageUrl,
+                stock: stock || 0,
+            });
+
             const savedProduct = await newProduct.save();
             res.status(201).json(savedProduct);
         } catch (error) {
@@ -34,11 +50,14 @@ class ProductController {
         }
     }
 
-    async updateProduct(req, res) {
-        // Logic to update an existing product
-        const { id } = req.params;
+    async updateProduct(req: Request, res: Response) {
         try {
-            const updatedProduct = await Product.findByIdAndUpdate(id, req.body, { new: true });
+            const { id } = req.params;
+            const updatedProduct = await Product.findByIdAndUpdate(
+                id,
+                req.body,
+                { new: true, runValidators: true }
+            );
             if (!updatedProduct) {
                 return res.status(404).json({ message: 'Product not found' });
             }
@@ -48,10 +67,9 @@ class ProductController {
         }
     }
 
-    async deleteProduct(req, res) {
-        // Logic to delete a product
-        const { id } = req.params;
+    async deleteProduct(req: Request, res: Response) {
         try {
+            const { id } = req.params;
             const deletedProduct = await Product.findByIdAndDelete(id);
             if (!deletedProduct) {
                 return res.status(404).json({ message: 'Product not found' });

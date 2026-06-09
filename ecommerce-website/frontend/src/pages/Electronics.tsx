@@ -1,35 +1,42 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ProductCard from '../components/ProductCard';
-
-const electronicsData = [
-    {
-        id: 1,
-        name: 'Smartphone',
-        price: 500000,
-        image: 'path/to/smartphone-image.jpg',
-    },
-    {
-        id: 2,
-        name: 'Laptop',
-        price: 1500000,
-        image: 'path/to/laptop-image.jpg',
-    },
-    {
-        id: 3,
-        name: 'Headphones',
-        price: 100000,
-        image: 'path/to/headphones-image.jpg',
-    },
-];
+import { productAPI } from '../services/apiService';
 
 const Electronics = () => {
+    const [products, setProducts] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState('');
+
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                setIsLoading(true);
+                const data = await productAPI.getAllProducts('Electronics');
+                setProducts(data || []);
+            } catch (err) {
+                setError('Failed to load electronics');
+                console.error(err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchProducts();
+    }, []);
+
     return (
-        <div>
+        <div className="category-page">
             <h1>Electronics</h1>
+            {isLoading && <p>Loading products...</p>}
+            {error && <p className="error">{error}</p>}
             <div className="product-list">
-                {electronicsData.map(product => (
-                    <ProductCard key={product.id} product={product} />
-                ))}
+                {products.length > 0 ? (
+                    products.map((product: any) => (
+                        <ProductCard key={product._id || product.id} product={product} />
+                    ))
+                ) : (
+                    !isLoading && <p>No electronics available</p>
+                )}
             </div>
         </div>
     );

@@ -1,37 +1,130 @@
-export class CheckoutController {
-    async processOrder(req, res) {
-        try {
-            const { userId, cartItems, paymentDetails } = req.body;
+import { Request, Response } from 'express';
+import Order from '../models/Order';
+import Cart from '../models/Cart';
+import Product from '../models/Product';
 
-            // Validate the request data
-            if (!userId || !cartItems || !paymentDetails) {
-                return res.status(400).json({ message: 'Invalid request data' });
+interface AuthRequest extends Request {
+    userId?: string;
+}
+
+class CheckoutController {
+    async processOrder(req: AuthRequest, res: Response) {
+        try {
+            const userId = req.userId || req.body.userId;
+            const { shippingAddress } = req.body;
+
+            if (!userId || !shippingAddress) {
+                return res.status(400).json({ message: 'Missing required fields' });
             }
 
-            // Here you would typically handle payment processing and order creation
-            // For example, you might call a payment gateway API
+            const cart = await Cart.findOne({ userId }).populate('items.productId');
+            if (!cart || cart.items.length === 0) {
+                return res.status(400).json({ message: 'Cart is empty' });
+            }
 
-            // Simulate order processing
-            const order = {
+            // Check stock availability and prepare order items
+            const orderItems = [];
+            for (const item of cart.items) {
+                const product = await Product.findById(item.productId);
+                if (!product || product.stock < item.quantity) {
+                    return res.status(400).json({
+                        message: `Insufficient stock for product: ${product?.name}`,
+                    });
+                }
+
+                orderItems.push({
+                    productId: item.productId,
+                    quantity: item.quantity,
+                    price: item.price,
+                });
+
+                // Update product stock
+                product.stock -= item.quantity;
+                await product.save();
+            }
+
+            // Create order
+            const order = new Order({
                 userId,
-                items: cartItems,
-                totalAmount: this.calculateTotal(cartItems),
-                status: 'Pending',
-                createdAt: new Date(),
-            };
+                items: orderItems,
+                totalAmount: cart.totalPrice,
+                status: 'pending',
+                shippingAddress,
+            });
 
-            // Save the order to the database (pseudo code)
-            // await OrderModel.create(order);
+            await order.save();
 
-            return res.status(201).json({ message: 'Order processed successfully', order });
+            // Clear cart
+            cart.items = [];
+            cart.totalPrice = 0;
+            await cart.save();
+
+            res.status(201).json({
+                message: 'Order processed successfully',
+                order,
+            });
         } catch (error) {
-            console.error('Error processing order:', error);
-            return res.status(500).json({ message: 'Internal server error' });
+            res.status(500).json({ message: 'Error processing order', error });
         }
     }
 
-    calculateTotal(cartItems) {
-        // Calculate total amount from cart items
-        return cartItems.reduce((total, item) => total + item.price * item.quantity, 0);
+    async getOrderHistory(req: AuthRequest, res: Response) {
+        try {
+            const userId = req.userId || req.body.userId;
+
+            if (!userId) {
+                return res.status(400).json({ message: 'User ID is required' });
+            }
+
+            const orders = await Order.find({ userId })
+                .populate('items.productId')
+                .sort({ createdAt: -1 });
+
+            res.status(200).json(orders);
+        } catch (error) {
+            res.status(500).json({ message: 'Error fetching order history', error });
+        }
+    }
+
+    async getOrderById(req: Request, res: Response) {
+        try {
+            const { orderId } = req.params;
+
+            const order = await Order.findById(orderId).populate('items.productId');
+            if (!order) {
+                return res.status(404).json({ message: 'Order not found' });
+            }
+
+            res.status(200).json(order);
+        } catch (error) {
+            res.status(500).json({ message: 'Error fetching order', error });
+        }
+    }
+
+    async updateOrderStatus(req: Request, res: Response) {
+        try {
+            const { orderId } = req.params;
+            const { status } = req.body;
+
+            if (!status || !['pending', 'completed', 'cancelled'].includes(status)) {
+                return res.status(400).json({ message: 'Invalid status' });
+            }
+
+            const order = await Order.findByIdAndUpdate(
+                orderId,
+                { status },
+                { new: true }
+            );
+
+            if (!order) {
+                return res.status(404).json({ message: 'Order not found' });
+            }
+
+            res.status(200).json(order);
+        } catch (error) {
+            res.status(500).json({ message: 'Error updating order status', error });
+        }
     }
 }
+
+export default new CheckoutController();

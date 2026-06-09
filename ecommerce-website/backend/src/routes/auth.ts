@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import AuthController from '../controllers/authController';
+import authController from '../controllers/authController';
 
 const router = Router();
-const authController = new AuthController();
 
 router.post('/register', authController.register);
-router.post('/login', authController.login);
-router.get('/logout', authController.logout);
+router.post('/signin', authController.signIn);
+router.post('/login', authController.signIn); // Alias for signin
+router.get('/user/:userId', authController.getUser);
+router.post('/logout', authController.logout);
 
 export default router;

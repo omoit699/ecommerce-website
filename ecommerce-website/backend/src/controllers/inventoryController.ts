@@ -1,45 +1,64 @@
-class InventoryController {
-    constructor(private inventoryService: any) {}
+import { Request, Response } from 'express';
+import Product from '../models/Product';
 
-    async getInventory(req: any, res: any) {
+class InventoryController {
+    async getInventory(req: Request, res: Response) {
         try {
-            const inventory = await this.inventoryService.getAllItems();
+            const inventory = await Product.find().select('name stock category price');
             res.status(200).json(inventory);
         } catch (error) {
             res.status(500).json({ message: 'Error fetching inventory', error });
         }
     }
 
-    async addItem(req: any, res: any) {
+    async getInventoryByCategory(req: Request, res: Response) {
         try {
-            const newItem = req.body;
-            const addedItem = await this.inventoryService.addItem(newItem);
-            res.status(201).json(addedItem);
+            const { category } = req.params;
+            const inventory = await Product.find({ category }).select(
+                'name stock category price'
+            );
+            res.status(200).json(inventory);
         } catch (error) {
-            res.status(500).json({ message: 'Error adding item', error });
+            res.status(500).json({ message: 'Error fetching inventory', error });
         }
     }
 
-    async updateItem(req: any, res: any) {
+    async getLowStockItems(req: Request, res: Response) {
         try {
-            const itemId = req.params.id;
-            const updatedItem = req.body;
-            const result = await this.inventoryService.updateItem(itemId, updatedItem);
-            res.status(200).json(result);
+            const threshold = req.query.threshold || 10;
+            const lowStockItems = await Product.find({
+                stock: { $lt: threshold },
+            });
+            res.status(200).json(lowStockItems);
         } catch (error) {
-            res.status(500).json({ message: 'Error updating item', error });
+            res.status(500).json({ message: 'Error fetching low stock items', error });
         }
     }
 
-    async deleteItem(req: any, res: any) {
+    async updateStock(req: Request, res: Response) {
         try {
-            const itemId = req.params.id;
-            await this.inventoryService.deleteItem(itemId);
-            res.status(204).send();
+            const { id } = req.params;
+            const { stock } = req.body;
+
+            if (stock === undefined || stock < 0) {
+                return res.status(400).json({ message: 'Invalid stock value' });
+            }
+
+            const product = await Product.findByIdAndUpdate(
+                id,
+                { stock },
+                { new: true }
+            );
+
+            if (!product) {
+                return res.status(404).json({ message: 'Product not found' });
+            }
+
+            res.status(200).json(product);
         } catch (error) {
-            res.status(500).json({ message: 'Error deleting item', error });
+            res.status(500).json({ message: 'Error updating stock', error });
         }
     }
 }
 
-export default InventoryController;
+export default new InventoryController();

@@ -1,10 +1,11 @@
 import { Router } from 'express';
-import CheckoutController from '../controllers/checkoutController';
+import checkoutController from '../controllers/checkoutController';
 
 const router = Router();
-const checkoutController = new CheckoutController();
 
-router.post('/checkout', checkoutController.processCheckout);
-router.get('/checkout/:orderId', checkoutController.getOrderDetails);
+router.post('/process', checkoutController.processOrder);
+router.get('/history/:userId', checkoutController.getOrderHistory);
+router.get('/order/:orderId', checkoutController.getOrderById);
+router.put('/order/:orderId/status', checkoutController.updateOrderStatus);
 
 export default router;

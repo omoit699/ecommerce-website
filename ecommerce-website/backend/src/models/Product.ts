@@ -1,19 +1,49 @@
-class Product {
-    id: number;
+import mongoose, { Schema, Document } from 'mongoose';
+
+export interface IProduct extends Document {
     name: string;
     price: number;
-    imageUrl: string;
     category: string;
     description: string;
-
-    constructor(id: number, name: string, price: number, imageUrl: string, category: string, description: string) {
-        this.id = id;
-        this.name = name;
-        this.price = price;
-        this.imageUrl = imageUrl;
-        this.category = category;
-        this.description = description;
-    }
+    imageUrl: string;
+    stock: number;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
-export default Product;
+const productSchema = new Schema<IProduct>(
+    {
+        name: {
+            type: String,
+            required: true,
+            trim: true,
+        },
+        price: {
+            type: Number,
+            required: true,
+            min: 0,
+        },
+        category: {
+            type: String,
+            required: true,
+            enum: ['Electronics', 'Clothes', 'Shoes'],
+        },
+        description: {
+            type: String,
+            required: true,
+        },
+        imageUrl: {
+            type: String,
+            required: true,
+        },
+        stock: {
+            type: Number,
+            required: true,
+            default: 0,
+            min: 0,
+        },
+    },
+    { timestamps: true }
+);
+
+export default mongoose.model<IProduct>('Product', productSchema);

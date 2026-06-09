@@ -1,43 +1,50 @@
-class Cart {
-    items: Array<{ productId: string; quantity: number }>;
-    totalPrice: number;
+import mongoose, { Schema, Document } from 'mongoose';
 
-    constructor() {
-        this.items = [];
-        this.totalPrice = 0;
-    }
-
-    addItem(productId: string, quantity: number, price: number) {
-        const existingItem = this.items.find(item => item.productId === productId);
-        if (existingItem) {
-            existingItem.quantity += quantity;
-        } else {
-            this.items.push({ productId, quantity });
-        }
-        this.totalPrice += price * quantity;
-    }
-
-    removeItem(productId: string, price: number) {
-        const itemIndex = this.items.findIndex(item => item.productId === productId);
-        if (itemIndex > -1) {
-            this.totalPrice -= this.items[itemIndex].quantity * price;
-            this.items.splice(itemIndex, 1);
-        }
-    }
-
-    updateQuantity(productId: string, quantity: number, price: number) {
-        const existingItem = this.items.find(item => item.productId === productId);
-        if (existingItem) {
-            const priceDifference = (quantity - existingItem.quantity) * price;
-            existingItem.quantity = quantity;
-            this.totalPrice += priceDifference;
-        }
-    }
-
-    clearCart() {
-        this.items = [];
-        this.totalPrice = 0;
-    }
+export interface ICartItem {
+    productId: mongoose.Types.ObjectId;
+    quantity: number;
+    price: number;
 }
 
-export default Cart;
+export interface ICart extends Document {
+    userId: mongoose.Types.ObjectId;
+    items: ICartItem[];
+    totalPrice: number;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+const cartSchema = new Schema<ICart>(
+    {
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+        },
+        items: [
+            {
+                productId: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'Product',
+                    required: true,
+                },
+                quantity: {
+                    type: Number,
+                    required: true,
+                    min: 1,
+                },
+                price: {
+                    type: Number,
+                    required: true,
+                },
+            },
+        ],
+        totalPrice: {
+            type: Number,
+            default: 0,
+        },
+    },
+    { timestamps: true }
+);
+
+export default mongoose.model<ICart>('Cart', cartSchema);

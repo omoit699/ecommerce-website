@@ -1,12 +1,61 @@
-class Order {
-    constructor(
-        public orderId: string,
-        public userId: string,
-        public items: Array<{ productId: string; quantity: number; price: number }>,
-        public totalAmount: number,
-        public orderDate: Date,
-        public status: string
-    ) {}
+import mongoose, { Schema, Document } from 'mongoose';
+
+export interface IOrderItem {
+    productId: mongoose.Types.ObjectId;
+    quantity: number;
+    price: number;
 }
 
-export default Order;
+export interface IOrder extends Document {
+    userId: mongoose.Types.ObjectId;
+    items: IOrderItem[];
+    totalAmount: number;
+    status: 'pending' | 'completed' | 'cancelled';
+    shippingAddress: string;
+    createdAt: Date;
+    updatedAt: Date;
+}
+
+const orderSchema = new Schema<IOrder>(
+    {
+        userId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User',
+            required: true,
+        },
+        items: [
+            {
+                productId: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: 'Product',
+                    required: true,
+                },
+                quantity: {
+                    type: Number,
+                    required: true,
+                    min: 1,
+                },
+                price: {
+                    type: Number,
+                    required: true,
+                },
+            },
+        ],
+        totalAmount: {
+            type: Number,
+            required: true,
+        },
+        status: {
+            type: String,
+            enum: ['pending', 'completed', 'cancelled'],
+            default: 'pending',
+        },
+        shippingAddress: {
+            type: String,
+            required: true,
+        },
+    },
+    { timestamps: true }
+);
+
+export default mongoose.model<IOrder>('Order', orderSchema);
