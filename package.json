@@ -1,56 +1,16 @@
 {
-<<<<<<< HEAD
-  "name": "Loris E-9",
+  "name": "loris-e-9-root",
   "version": "1.0.0",
-  "description": "Your everything you need is here for you to shop.",
-  "main": "src/index.tsx",
+  "description": "Full-stack E-commerce Website for Loris E-9",
+  "private": true,
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "dependencies": {
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "react-router-dom": "^5.2.0",
-    "typescript": "^4.4.4"
+    "backend": "npm run dev --prefix backend",
+    "frontend": "npm run dev --prefix ecommerce-website",
+    "dev": "concurrently \"npm run backend\" \"npm run frontend\""
   },
   "devDependencies": {
-    "@types/react": "^17.0.2",
-    "@types/react-dom": "^17.0.2",
-    "@types/react-router-dom": "^5.1.7"
+    "concurrently": "^8.2.2"
   },
-  "keywords": [
-    "Loris",
-    "react",
-    "typescript"
-  ],
   "author": "Omoit699",
   "license": "MIT"
 }
-=======
-  "name": "loris-e-9-backend",
-  "version": "1.0.0",
-  "description": "Backend REST API for Loris E-9 E-commerce store.",
-  "type": "module",
-  "main": "server.js",
-  "scripts": {
-    "start": "node server.js",
-    "dev": "node --watch server.js"
-  },
-  "dependencies": {
-    "cors": "^2.8.5",
-    "express": "^4.21.2",
-    "mongoose": "^8.13.0"
-  },
-  "keywords": [
-    "loris",
-    "backend",
-    "express",
-    "node"
-  ],
-  "author": "Omoit699",
-  "license": "MIT"
-}
->>>>>>> 742f560 (Updated Website)
