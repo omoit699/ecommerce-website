@@ -1,8 +1,9 @@
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// Vite uses import.meta.env instead of process.env
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 // Auth APIs
 export const authAPI = {
-    register: async (username: string, email: string, password: string, confirmPassword: string) => {
+    register: async (username, email, password, confirmPassword) => {
         const response = await fetch(`${API_BASE_URL}/auth/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -11,7 +12,7 @@ export const authAPI = {
         return response.json();
     },
 
-    signin: async (email: string, password: string) => {
+    signin: async (email, password) => {
         const response = await fetch(`${API_BASE_URL}/auth/signin`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -28,7 +29,7 @@ export const authAPI = {
         return response.json();
     },
 
-    getUser: async (userId: string) => {
+    getUser: async (userId) => {
         const response = await fetch(`${API_BASE_URL}/auth/user/${userId}`, {
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
         });
@@ -38,7 +39,7 @@ export const authAPI = {
 
 // Product APIs
 export const productAPI = {
-    getAllProducts: async (category?: string) => {
+    getAllProducts: async (category) => {
         const url = category
             ? `${API_BASE_URL}/products?category=${category}`
             : `${API_BASE_URL}/products`;
@@ -46,12 +47,12 @@ export const productAPI = {
         return response.json();
     },
 
-    getProductById: async (id: string) => {
+    getProductById: async (id) => {
         const response = await fetch(`${API_BASE_URL}/products/${id}`);
         return response.json();
     },
 
-    createProduct: async (product: any) => {
+    createProduct: async (product) => {
         const response = await fetch(`${API_BASE_URL}/products`, {
             method: 'POST',
             headers: {
@@ -63,7 +64,7 @@ export const productAPI = {
         return response.json();
     },
 
-    updateProduct: async (id: string, product: any) => {
+    updateProduct: async (id, product) => {
         const response = await fetch(`${API_BASE_URL}/products/${id}`, {
             method: 'PUT',
             headers: {
@@ -75,7 +76,7 @@ export const productAPI = {
         return response.json();
     },
 
-    deleteProduct: async (id: string) => {
+    deleteProduct: async (id) => {
         const response = await fetch(`${API_BASE_URL}/products/${id}`, {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
@@ -86,12 +87,12 @@ export const productAPI = {
 
 // Cart APIs
 export const cartAPI = {
-    getCart: async (userId: string) => {
+    getCart: async (userId) => {
         const response = await fetch(`${API_BASE_URL}/cart/${userId}`);
         return response.json();
     },
 
-    addItem: async (userId: string, productId: string, quantity: number) => {
+    addItem: async (userId, productId, quantity) => {
         const response = await fetch(`${API_BASE_URL}/cart/${userId}/add`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -100,14 +101,14 @@ export const cartAPI = {
         return response.json();
     },
 
-    removeItem: async (userId: string, productId: string) => {
+    removeItem: async (userId, productId) => {
         const response = await fetch(`${API_BASE_URL}/cart/${userId}/remove/${productId}`, {
             method: 'DELETE',
         });
         return response.json();
     },
 
-    updateQuantity: async (userId: string, productId: string, quantity: number) => {
+    updateQuantity: async (userId, productId, quantity) => {
         const response = await fetch(`${API_BASE_URL}/cart/${userId}/update/${productId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
@@ -116,7 +117,7 @@ export const cartAPI = {
         return response.json();
     },
 
-    clearCart: async (userId: string) => {
+    clearCart: async (userId) => {
         const response = await fetch(`${API_BASE_URL}/cart/${userId}/clear`, {
             method: 'POST',
         });
@@ -126,7 +127,7 @@ export const cartAPI = {
 
 // Checkout APIs
 export const checkoutAPI = {
-    processOrder: async (userId: string, shippingAddress: string) => {
+    processOrder: async (userId, shippingAddress) => {
         const response = await fetch(`${API_BASE_URL}/checkout/process`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -135,17 +136,17 @@ export const checkoutAPI = {
         return response.json();
     },
 
-    getOrderHistory: async (userId: string) => {
+    getOrderHistory: async (userId) => {
         const response = await fetch(`${API_BASE_URL}/checkout/history/${userId}`);
         return response.json();
     },
 
-    getOrderById: async (orderId: string) => {
+    getOrderById: async (orderId) => {
         const response = await fetch(`${API_BASE_URL}/checkout/order/${orderId}`);
         return response.json();
     },
 
-    updateOrderStatus: async (orderId: string, status: string) => {
+    updateOrderStatus: async (orderId, status) => {
         const response = await fetch(`${API_BASE_URL}/checkout/order/${orderId}/status`, {
             method: 'PUT',
             headers: {
@@ -165,12 +166,12 @@ export const inventoryAPI = {
         return response.json();
     },
 
-    getInventoryByCategory: async (category: string) => {
+    getInventoryByCategory: async (category) => {
         const response = await fetch(`${API_BASE_URL}/inventory/category/${category}`);
         return response.json();
     },
 
-    getLowStockItems: async (threshold?: number) => {
+    getLowStockItems: async (threshold) => {
         const url = threshold
             ? `${API_BASE_URL}/inventory/low-stock?threshold=${threshold}`
             : `${API_BASE_URL}/inventory/low-stock`;
@@ -178,7 +179,7 @@ export const inventoryAPI = {
         return response.json();
     },
 
-    updateStock: async (id: string, stock: number) => {
+    updateStock: async (id, stock) => {
         const response = await fetch(`${API_BASE_URL}/inventory/${id}/stock`, {
             method: 'PUT',
             headers: {
@@ -191,6 +192,7 @@ export const inventoryAPI = {
     },
 };
 
+// Default export containing all API objects
 export default {
     authAPI,
     productAPI,
