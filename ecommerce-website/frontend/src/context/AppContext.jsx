@@ -1,45 +1,18 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
-import { authAPI, cartAPI } from '../services/apiService';
+import React, { createContext, useState, useContext } from 'react';
+// Pointing to your correct, clean JavaScript api file
+import { authAPI, cartAPI } from '../services/api.js'; 
 
-interface User {
-    id: string;
-    username: string;
-    email: string;
-}
+const AppContext = createContext(undefined);
 
-interface CartItem {
-    productId: string;
-    name: string;
-    quantity: number;
-    price: number;
-}
-
-interface AppContextType {
-    user: User | null;
-    token: string | null;
-    cart: CartItem[];
-    cartTotal: number;
-    login: (email: string, password: string) => Promise<void>;
-    register: (username: string, email: string, password: string, confirmPassword: string) => Promise<void>;
-    logout: () => void;
-    addToCart: (productId: string, name: string, price: number, quantity: number) => Promise<void>;
-    removeFromCart: (productId: string) => Promise<void>;
-    updateCartQuantity: (productId: string, quantity: number) => Promise<void>;
-    clearCart: () => Promise<void>;
-    fetchCart: () => Promise<void>;
-}
-
-const AppContext = createContext<AppContextType | undefined>(undefined);
-
-export const AppProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<User | null>(null);
-    const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
-    const [cart, setCart] = useState<CartItem[]>([]);
+export const AppProvider = ({ children }) => {
+    const [user, setUser] = useState(null);
+    const [token, setToken] = useState(localStorage.getItem('token'));
+    const [cart, setCart] = useState([]);
     const [cartTotal, setCartTotal] = useState(0);
 
     const generateUserId = () => localStorage.getItem('userId') || 'guest-' + Date.now();
 
-    const login = async (email: string, password: string) => {
+    const login = async (email, password) => {
         const response = await authAPI.signin(email, password);
         if (response.token) {
             setUser(response.user);
@@ -52,7 +25,7 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    const register = async (username: string, email: string, password: string, confirmPassword: string) => {
+    const register = async (username, email, password, confirmPassword) => {
         const response = await authAPI.register(username, email, password, confirmPassword);
         if (response.token) {
             setUser(response.user);
@@ -77,36 +50,36 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         try {
             const userId = localStorage.getItem('userId') || generateUserId();
             const cartData = await cartAPI.getCart(userId);
-            if (cartData.items) {
+            if (cartData && cartData.items) {
                 setCart(
-                    cartData.items.map((item: any) => ({
+                    cartData.items.map((item) => ({
                         productId: item.productId._id || item.productId,
                         name: item.productId.name,
                         quantity: item.quantity,
                         price: item.price,
                     }))
                 );
-                setCartTotal(cartData.totalPrice);
+                setCartTotal(cartData.totalPrice || 0);
             }
         } catch (error) {
             console.error('Error fetching cart:', error);
         }
     };
 
-    const addToCart = async (productId: string, name: string, price: number, quantity: number) => {
+    const addToCart = async (productId, name, price, quantity) => {
         try {
             const userId = localStorage.getItem('userId') || generateUserId();
             const cartData = await cartAPI.addItem(userId, productId, quantity);
-            if (cartData.items) {
+            if (cartData && cartData.items) {
                 setCart(
-                    cartData.items.map((item: any) => ({
+                    cartData.items.map((item) => ({
                         productId: item.productId._id || item.productId,
                         name: item.productId.name,
                         quantity: item.quantity,
                         price: item.price,
                     }))
                 );
-                setCartTotal(cartData.totalPrice);
+                setCartTotal(cartData.totalPrice || 0);
             }
         } catch (error) {
             console.error('Error adding to cart:', error);
@@ -114,20 +87,20 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    const removeFromCart = async (productId: string) => {
+    const removeFromCart = async (productId) => {
         try {
             const userId = localStorage.getItem('userId') || generateUserId();
             const cartData = await cartAPI.removeItem(userId, productId);
-            if (cartData.items) {
+            if (cartData && cartData.items) {
                 setCart(
-                    cartData.items.map((item: any) => ({
+                    cartData.items.map((item) => ({
                         productId: item.productId._id || item.productId,
                         name: item.productId.name,
                         quantity: item.quantity,
                         price: item.price,
                     }))
                 );
-                setCartTotal(cartData.totalPrice);
+                setCartTotal(cartData.totalPrice || 0);
             }
         } catch (error) {
             console.error('Error removing from cart:', error);
@@ -135,20 +108,20 @@ export const AppProvider = ({ children }: { children: ReactNode }) => {
         }
     };
 
-    const updateCartQuantity = async (productId: string, quantity: number) => {
+    const updateCartQuantity = async (productId, quantity) => {
         try {
             const userId = localStorage.getItem('userId') || generateUserId();
             const cartData = await cartAPI.updateQuantity(userId, productId, quantity);
-            if (cartData.items) {
+            if (cartData && cartData.items) {
                 setCart(
-                    cartData.items.map((item: any) => ({
+                    cartData.items.map((item) => ({
                         productId: item.productId._id || item.productId,
                         name: item.productId.name,
                         quantity: item.quantity,
                         price: item.price,
                     }))
                 );
-                setCartTotal(cartData.totalPrice);
+                setCartTotal(cartData.totalPrice || 0);
             }
         } catch (error) {
             console.error('Error updating cart quantity:', error);
