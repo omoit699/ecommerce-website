@@ -5,11 +5,7 @@
   "private": true,
   "scripts": {
     "backend": "npm run dev --prefix backend",
-    "frontend": "npm run dev --prefix ecommerce-website",
-    "dev": "concurrently --shell \"bash\" \"npm run backend\" \"npm run frontend\""
-  },
-  "devDependencies": {
-    "concurrently": "^8.2.2"
+    "frontend": "npm run dev --prefix ecommerce-website"
   },
   "author": "Omoit699",
   "license": "MIT"
