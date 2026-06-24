@@ -1,7 +1,7 @@
 {
-  "name": "ecommerce-website",
+  "name": "Loris E-9",
   "version": "1.0.0",
-  "description": "A simple e-commerce website built with React and TypeScript.",
+  "description": "Your everything you need is here for you to shop.",
   "main": "src/index.tsx",
   "scripts": {
     "start": "react-scripts start",
@@ -21,10 +21,10 @@
     "@types/react-router-dom": "^5.1.7"
   },
   "keywords": [
-    "ecommerce",
+    "Loris",
     "react",
     "typescript"
   ],
-  "author": "Your Name",
+  "author": "Omoit699",
   "license": "MIT"
 }
