@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "name": "Loris E-9",
   "version": "1.0.0",
   "description": "Your everything you need is here for you to shop.",
@@ -28,3 +29,28 @@
   "author": "Omoit699",
   "license": "MIT"
 }
+=======
+  "name": "loris-e-9-backend",
+  "version": "1.0.0",
+  "description": "Backend REST API for Loris E-9 E-commerce store.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "mongoose": "^8.13.0"
+  },
+  "keywords": [
+    "loris",
+    "backend",
+    "express",
+    "node"
+  ],
+  "author": "Omoit699",
+  "license": "MIT"
+}
+>>>>>>> 742f560 (Updated Website)
