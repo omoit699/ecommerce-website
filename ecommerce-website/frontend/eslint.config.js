@@ -11,13 +11,20 @@ export default [
 
     languageOptions: {
       parser: babelParser,
+
       parserOptions: {
         requireConfigFile: false,
         ecmaVersion: "latest",
         sourceType: "module",
-        ecmaFeatures: {
-          jsx: true,
+
+        // 🔥 FIX JSX PARSING
+        babelOptions: {
+          presets: ["@babel/preset-react"]
         },
+
+        ecmaFeatures: {
+          jsx: true
+        }
       },
 
       globals: {
@@ -25,29 +32,31 @@ export default [
         localStorage: "readonly",
         console: "readonly",
         window: "readonly",
-        document: "readonly",
-      },
+        document: "readonly"
+      }
     },
 
     plugins: {
-      react: react, // ✅ IMPORTANT FIX (explicit mapping)
-      "react-hooks": reactHooks,
+      react,
+      "react-hooks": reactHooks
     },
 
     settings: {
       react: {
-        version: "detect",
-      },
+        version: "detect"
+      }
     },
 
     rules: {
       "react/react-in-jsx-scope": "off",
+
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
+
       "no-unused-vars": "warn",
 
-      // 🚨 FORCE DISABLE (NOW WORKS PROPERLY)
-      "react/prop-types": "off",
-    },
-  },
+      // optional (you can keep ON later)
+      "react/prop-types": "off"
+    }
+  }
 ];
