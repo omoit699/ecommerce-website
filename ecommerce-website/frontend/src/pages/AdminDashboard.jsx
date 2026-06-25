@@ -1,31 +1,103 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
+import { checkoutAPI } from "../services/api";
 
 const AdminDashboard = () => {
-    return (
-        <div className="container">
-            <div className="admin-dashboard">
-                <h1 style={{ textAlign: 'center', margin: '20px 0' }}>Admin Dashboard</h1>
-                
-                <div className="dashboard-content" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '25px' }}>
-                    
-                    {/* Products Management Column */}
-                    <section className="manage-products" style={{ border: '1px solid #F1F1F2', padding: '20px', borderRadius: '4px', backgroundColor: '#FFFFFF' }}>
-                        <h2 style={{ borderBottom: '2px solid #F68B1E', paddingBottom: '10px', color: '#313131' }}>Manage Products</h2>
-                        <p style={{ color: '#75757A', fontSize: '14px' }}>Add new items, update pricing, or edit your current inventory.</p>
-                        {/* Dynamic management tools will inject here later */}
-                    </section>
-                    
-                    {/* Orders Review Column */}
-                    <section className="view-orders" style={{ border: '1px solid #F1F1F2', padding: '20px', borderRadius: '4px', backgroundColor: '#FFFFFF' }}>
-                        <h2 style={{ borderBottom: '2px solid #3B3B3B', paddingBottom: '10px', color: '#313131' }}>View Orders</h2>
-                        <p style={{ color: '#75757A', fontSize: '14px' }}>Track processing customer shipments and pending payments.</p>
-                        {/* Dynamic order tracking items will inject here later */}
-                    </section>
-                    
-                </div>
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await checkoutAPI.getOrderHistory("all");
+      setOrders(res?.orders || []);
+    } catch (err) {
+      setError("Failed to load orders");
+    }
+
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const updateStatus = async (orderId, status) => {
+    try {
+      await checkoutAPI.updateOrderStatus(orderId, status);
+      fetchOrders();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  return (
+    <div className="container">
+      <h2>Admin Dashboard</h2>
+
+      {loading && <p>Loading orders...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
+
+      {!loading && orders.length === 0 && (
+        <p>No orders found</p>
+      )}
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 15 }}>
+        {orders.map((order) => (
+          <div
+            key={order._id}
+            style={{
+              border: "1px solid #ddd",
+              padding: 15,
+              borderRadius: 5,
+            }}
+          >
+            <h4>Order ID: {order._id}</h4>
+
+            <p>
+              Status:{" "}
+              <b style={{ color: "green" }}>
+                {order.status}
+              </b>
+            </p>
+
+            <p>
+              Total: UGX {Number(order.total || 0).toLocaleString()}
+            </p>
+
+            {/* STATUS CONTROL */}
+            <div style={{ marginTop: 10 }}>
+              <button
+                onClick={() =>
+                  updateStatus(order._id, "processing")
+                }
+              >
+                Processing
+              </button>
+
+              <button
+                onClick={() =>
+                  updateStatus(order._id, "shipped")
+                }
+              >
+                Shipped
+              </button>
+
+              <button
+                onClick={() =>
+                  updateStatus(order._id, "delivered")
+                }
+              >
+                Delivered
+              </button>
             </div>
-        </div>
-    );
+          </div>
+        ))}
+      </div>
+    </div>
+  );
 };
 
 export default AdminDashboard;

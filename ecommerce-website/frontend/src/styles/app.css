@@ -1,119 +1,125 @@
 /* Global Reset & Base Layout */
 body {
-    font-family: 'Roboto', Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #F1F1F2; /* Jumia's Signature Off-White/Light Gray background */
-    color: #313131; /* Dark Charcoal for highly readable text */
+  font-family: "Roboto", Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f1f1f2; /* Jumia's Signature Off-White/Light Gray background */
+  color: #313131; /* Dark Charcoal for highly readable text */
 }
 
 /* Header (The Main Banner Area) */
 header {
-    background: #FFFFFF; /* White header background just like Jumia */
-    color: #212121;
-    padding: 15px 0;
-    text-align: center;
-    border-bottom: 2px solid #F1F1F2;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  background: #ffffff; /* White header background just like Jumia */
+  color: #212121;
+  padding: 15px 0;
+  text-align: center;
+  border-bottom: 2px solid #f1f1f2;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
 }
 
 /* Navigation Layout */
 nav {
-    background-color: #F68B1E; /* Jumia Core Premium Orange */
-    margin: 0;
-    padding: 5px 0;
-    display: flex;
-    justify-content: center;
+  background-color: #f68b1e; /* Jumia Core Premium Orange */
+  margin: 0;
+  padding: 5px 0;
+  display: flex;
+  justify-content: center;
 }
 
 /* Nav Links */
 nav a {
-    color: #FFFFFF;
-    text-decoration: none;
-    font-weight: 500;
-    padding: 12px 20px;
-    font-size: 14px;
-    text-transform: uppercase;
-    transition: all 0.2s ease-in-out;
+  color: #ffffff;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 12px 20px;
+  font-size: 14px;
+  text-transform: uppercase;
+  transition: all 0.2s ease-in-out;
 }
 
 /* Nav Link Hover State */
 nav a:hover {
-    background-color: #E0740E; /* Darker Orange accent for focus states */
-    color: #FFFFFF;
+  background-color: #e0740e; /* Darker Orange accent for focus states */
+  color: #ffffff;
 }
 
 /* App Wrapper Container */
 .container {
-    width: 85%;
-    max-width: 1200px;
-    margin: 20px auto;
-    overflow: hidden;
+  width: 85%;
+  max-width: 1200px;
+  margin: 20px auto;
+  overflow: hidden;
 }
 
 /* Premium Product Display Cards */
 .product-card {
-    background: #FFFFFF;
-    border: none;
-    border-radius: 4px; /* Clean sharp professional borders */
-    padding: 16px;
-    margin: 15px 0;
-    text-align: center;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Soft shadow used by top stores */
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: #ffffff;
+  border: none;
+  border-radius: 4px; /* Clean sharp professional borders */
+  padding: 16px;
+  margin: 15px 0;
+  text-align: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Soft shadow used by top stores */
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 /* Interactive Product Cards Lift on Cursor Hover */
 .product-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+  transform: translateY(-4px);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
 }
 
 /* Product Images */
 .product-card img {
-    max-width: 100%;
-    max-height: 200px;
-    object-fit: contain;
-    height: auto;
-    margin-bottom: 10px;
+  max-width: 100%;
+  max-height: 200px;
+  object-fit: contain;
+  height: auto;
+  margin-bottom: 10px;
 }
 
 /* Utility Layouts (Cart, Checkout, Admin Panels) */
-.cart, .checkout, .admin-dashboard {
-    background: #FFFFFF;
-    padding: 25px;
-    border-radius: 4px;
-    margin: 20px 0;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+.cart,
+.checkout,
+.admin-dashboard {
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 4px;
+  margin: 20px 0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 /* Actions/Buttons Layout Blueprint for your forms */
-button, .btn {
-    background-color: #F68B1E; /* Core Orange Call-to-Action */
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-weight: bold;
-    border-radius: 4px;
-    cursor: pointer;
-    text-transform: uppercase;
-    width: 100%;
-    transition: background 0.2s;
+button,
+.btn {
+  background-color: #f68b1e; /* Core Orange Call-to-Action */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  font-weight: bold;
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  width: 100%;
+  transition: background 0.2s;
 }
 
-button:hover, .btn:hover {
-    background-color: #E0740E; /* Darker focused Orange click action */
+button:hover,
+.btn:hover {
+  background-color: #e0740e; /* Darker focused Orange click action */
 }
 
 /* Jumia-style Dark Grey Bottom Footer */
 .footer {
-    text-align: center;
-    padding: 15px 0;
-    background: #3B3B3B; /* Jumia Dark grey secondary accent color */
-    color: #BBBBBB;
-    font-size: 13px;
-    position: relative;
-    bottom: 0;
-    width: 100%;
-    margin-top: 50px;
+  text-align: center;
+  padding: 15px 0;
+  background: #3b3b3b; /* Jumia Dark grey secondary accent color */
+  color: #bbbbbb;
+  font-size: 13px;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+  margin-top: 50px;
 }

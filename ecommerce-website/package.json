@@ -8,5 +8,9 @@
     "frontend": "npm run dev --prefix ecommerce-website"
   },
   "author": "Omoit699",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.5.0"
+  }
 }

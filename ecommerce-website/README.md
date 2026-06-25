@@ -60,23 +60,27 @@ The backend is built using Node.js and Express. It includes the following compon
 To get started with the project, follow these steps:
 
 1. Clone the repository:
+
    ```
    git clone <repository-url>
    ```
 
 2. Navigate to the frontend directory and install dependencies:
+
    ```
    cd frontend
    npm install
    ```
 
 3. Navigate to the backend directory and install dependencies:
+
    ```
    cd ../backend
    npm install
    ```
 
 4. Start the backend server:
+
    ```
    npm start
    ```
