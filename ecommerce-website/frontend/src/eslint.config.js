@@ -30,7 +30,7 @@ export default [
     },
 
     plugins: {
-      react,
+      react: react, // ✅ IMPORTANT FIX (explicit mapping)
       "react-hooks": reactHooks,
     },
 
@@ -46,7 +46,7 @@ export default [
       "react-hooks/exhaustive-deps": "warn",
       "no-unused-vars": "warn",
 
-      // 🔥 IMPORTANT FIX
+      // 🚨 FORCE DISABLE (NOW WORKS PROPERLY)
       "react/prop-types": "off",
     },
   },
