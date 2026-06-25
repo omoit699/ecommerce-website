@@ -1,6 +1,7 @@
 import js from "@eslint/js";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
+import babelParser from "@babel/eslint-parser";
 
 export default [
   js.configs.recommended,
@@ -9,8 +10,15 @@ export default [
     files: ["**/*.{js,jsx}"],
 
     languageOptions: {
-      ecmaVersion: "latest",
-      sourceType: "module",
+      parser: babelParser,
+      parserOptions: {
+        requireConfigFile: false,
+        ecmaVersion: "latest",
+        sourceType: "module",
+        ecmaFeatures: {
+          jsx: true
+        }
+      },
 
       globals: {
         fetch: "readonly",
@@ -33,17 +41,10 @@ export default [
     },
 
     rules: {
-      // React core
       "react/react-in-jsx-scope": "off",
-
-      // Hooks rules (IMPORTANT)
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
-
-      // General JS cleanup
       "no-unused-vars": "warn",
-
-      // 🔥 IMPORTANT FIX: removes all your ProductCard + prop issues
       "react/prop-types": "off"
     }
   }
