@@ -16,8 +16,8 @@ export default [
         ecmaVersion: "latest",
         sourceType: "module",
         ecmaFeatures: {
-          jsx: true
-        }
+          jsx: true,
+        },
       },
 
       globals: {
@@ -25,19 +25,19 @@ export default [
         localStorage: "readonly",
         console: "readonly",
         window: "readonly",
-        document: "readonly"
-      }
+        document: "readonly",
+      },
     },
 
     plugins: {
       react,
-      "react-hooks": reactHooks
+      "react-hooks": reactHooks,
     },
 
     settings: {
       react: {
-        version: "detect"
-      }
+        version: "detect",
+      },
     },
 
     rules: {
@@ -45,15 +45,9 @@ export default [
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
       "no-unused-vars": "warn",
-      "react/prop-types": "off"
-    }
-  },
 
-  // 🔥 EXTRA SAFETY OVERRIDE
-  {
-    files: ["**/*.jsx"],
-    rules: {
-      "react/prop-types": "off"
-    }
-  }
+      // 🔥 IMPORTANT FIX
+      "react/prop-types": "off",
+    },
+  },
 ];
