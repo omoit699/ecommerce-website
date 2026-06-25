@@ -47,5 +47,13 @@ export default [
       "no-unused-vars": "warn",
       "react/prop-types": "off"
     }
+  },
+
+  // 🔥 EXTRA SAFETY OVERRIDE
+  {
+    files: ["**/*.jsx"],
+    rules: {
+      "react/prop-types": "off"
+    }
   }
 ];
