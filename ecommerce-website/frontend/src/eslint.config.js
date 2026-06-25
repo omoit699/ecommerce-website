@@ -11,6 +11,7 @@ export default [
     languageOptions: {
       ecmaVersion: "latest",
       sourceType: "module",
+
       globals: {
         fetch: "readonly",
         localStorage: "readonly",
@@ -32,11 +33,18 @@ export default [
     },
 
     rules: {
-  "react/react-in-jsx-scope": "off",
-  "react-hooks/rules-of-hooks": "error",
-  "react-hooks/exhaustive-deps": "warn",
-  "no-unused-vars": "warn",
-  "react/prop-types": "off"
-}
+      // React core
+      "react/react-in-jsx-scope": "off",
+
+      // Hooks rules (IMPORTANT)
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
+
+      // General JS cleanup
+      "no-unused-vars": "warn",
+
+      // 🔥 IMPORTANT FIX: removes all your ProductCard + prop issues
+      "react/prop-types": "off"
+    }
   }
 ];
