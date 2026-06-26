@@ -1,62 +1,59 @@
+import Cart from "../models/Cart.js";
+
 class CartController {
-  constructor(cartService) {
-    this.cartService = cartService;
-  }
-
   async getCart(req, res) {
-    try {
-      const userId = req.user.id;
-      const cart = await this.cartService.getCartByUserId(userId);
-      res.status(200).json(cart);
-    } catch (error) {
-      res.status(500).json({ message: "Error retrieving cart", error });
-    }
+    const cart =
+      (await Cart.findOne({ userId: req.params.userId })) || {
+        items: [],
+      };
+
+    res.json(cart);
   }
 
-  async addItem(req, res) {
-    try {
-      const userId = req.user.id;
-      const { productId, quantity } = req.body;
-      const updatedCart = await this.cartService.addItemToCart(
-        userId,
-        productId,
-        quantity,
-      );
-      res.status(200).json(updatedCart);
-    } catch (error) {
-      res.status(500).json({ message: "Error adding item to cart", error });
+  async addToCart(req, res) {
+    let cart = await Cart.findOne({ userId: req.params.userId });
+
+    if (!cart) cart = new Cart({ userId: req.params.userId, items: [] });
+
+    const existing = cart.items.find(
+      (i) => i.productId === req.body.productId
+    );
+
+    if (existing) {
+      existing.quantity += req.body.quantity;
+    } else {
+      cart.items.push(req.body);
     }
+
+    await cart.save();
+    res.json(cart);
   }
 
-  async removeItem(req, res) {
-    try {
-      const userId = req.user.id;
-      const { productId } = req.params;
-      const updatedCart = await this.cartService.removeItemFromCart(
-        userId,
-        productId,
-      );
-      res.status(200).json(updatedCart);
-    } catch (error) {
-      res.status(500).json({ message: "Error removing item from cart", error });
-    }
+  async removeFromCart(req, res) {
+    const cart = await Cart.findOne({ userId: req.params.userId });
+
+    if (!cart) return res.json({ items: [] });
+
+    cart.items = cart.items.filter(
+      (i) => i.productId !== req.params.productId
+    );
+
+    await cart.save();
+    res.json(cart);
   }
 
-  async updateItemQuantity(req, res) {
-    try {
-      const userId = req.user.id;
-      const { productId } = req.params;
-      const { quantity } = req.body;
-      const updatedCart = await this.cartService.updateItemQuantity(
-        userId,
-        productId,
-        quantity,
-      );
-      res.status(200).json(updatedCart);
-    } catch (error) {
-      res.status(500).json({ message: "Error updating item quantity", error });
-    }
+  async updateCart(req, res) {
+    const cart = await Cart.findOne({ userId: req.params.userId });
+
+    const item = cart?.items.find(
+      (i) => i.productId === req.params.productId
+    );
+
+    if (item) item.quantity = req.body.quantity;
+
+    await cart.save();
+    res.json(cart);
   }
 }
 
-export default CartController;
+export default new CartController();

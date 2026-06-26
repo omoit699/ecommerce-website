@@ -1,30 +1,63 @@
 import express from "express";
 import mongoose from "mongoose";
-import bodyParser from "body-parser";
 import cors from "cors";
-import appRoutes from "./app";
+import dotenv from "dotenv";
+import appRoutes from "./app.js";
+
+dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+/* =========================
+   CORS CONFIG (PRODUCTION READY)
+========================= */
 
-// Database connection
-mongoose
-  .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/ecommerce", {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  process.env.CLIENT_URL, // your Vercel frontend URL
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Blocked by CORS policy"));
+    },
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
   })
+);
+
+/* =========================
+   MIDDLEWARE
+========================= */
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+/* =========================
+   DATABASE
+========================= */
+mongoose
+  .connect(process.env.MONGODB_URI || "mongodb://localhost:27017/ecommerce")
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-// Routes
+/* =========================
+   ROUTES
+========================= */
 app.use("/api", appRoutes);
 
-// Start server
+/* =========================
+   START SERVER
+========================= */
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });

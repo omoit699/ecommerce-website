@@ -3,50 +3,41 @@ import { authAPI, cartAPI } from "../services/api.js";
 
 const AppContext = createContext(null);
 
-export const AppProvider = (props) => {
-  const { children } = props;
-
+export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem("token"));
   const [cart, setCart] = useState([]);
   const [cartTotal, setCartTotal] = useState(0);
 
-  const generateUserId = () =>
+  const getUserId = () =>
     localStorage.getItem("userId") || "guest-" + Date.now();
 
+  /* ================= AUTH ================= */
   const login = async (email, password) => {
-    const response = await authAPI.signin(email, password);
+    const res = await authAPI.signin(email, password);
 
-    if (response.token) {
-      setUser(response.user);
-      setToken(response.token);
+    setUser(res.user);
+    setToken(res.token);
 
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("userId", response.user.id);
+    localStorage.setItem("token", res.token);
+    localStorage.setItem("userId", res.user.id);
 
-      await fetchCart();
-    } else {
-      throw new Error(response.message);
-    }
+    await fetchCart();
   };
 
   const register = async (username, email, password, confirmPassword) => {
-    const response = await authAPI.register(
+    const res = await authAPI.register(
       username,
       email,
       password,
       confirmPassword
     );
 
-    if (response.token) {
-      setUser(response.user);
-      setToken(response.token);
+    setUser(res.user);
+    setToken(res.token);
 
-      localStorage.setItem("token", response.token);
-      localStorage.setItem("userId", response.user.id);
-    } else {
-      throw new Error(response.message);
-    }
+    localStorage.setItem("token", res.token);
+    localStorage.setItem("userId", res.user.id);
   };
 
   const logout = () => {
@@ -55,105 +46,67 @@ export const AppProvider = (props) => {
     setCart([]);
     setCartTotal(0);
 
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
+    localStorage.clear();
   };
 
+  /* ================= CART ================= */
+  const normalizeCart = (items = []) =>
+    items.map((item) => ({
+      productId: item.productId?._id || item.productId,
+      name: item.productId?.name || item.name,
+      quantity: item.quantity,
+      price: item.price,
+    }));
+
   const fetchCart = async () => {
-    try {
-      const userId =
-        localStorage.getItem("userId") || generateUserId();
+    const userId = localStorage.getItem("userId") || getUserId();
+    const data = await cartAPI.getCart(userId);
 
-      const cartData = await cartAPI.getCart(userId);
-
-      if (cartData?.items) {
-        setCart(
-          cartData.items.map((item) => ({
-            productId: item.productId._id || item.productId,
-            name: item.productId.name,
-            quantity: item.quantity,
-            price: item.price,
-          }))
-        );
-
-        setCartTotal(cartData.totalPrice || 0);
-      }
-    } catch (error) {
-      console.error("Cart fetch error:", error);
+    if (data?.items) {
+      setCart(normalizeCart(data.items));
+      setCartTotal(data.totalPrice || 0);
     }
   };
 
   const addToCart = async (productId, name, price, quantity) => {
-    const userId =
-      localStorage.getItem("userId") || generateUserId();
+    const userId = localStorage.getItem("userId") || getUserId();
 
-    const cartData = await cartAPI.addItem(
-      userId,
-      productId,
-      quantity
-    );
+    const data = await cartAPI.addItem(userId, productId, quantity);
 
-    if (cartData?.items) {
-      setCart(
-        cartData.items.map((item) => ({
-          productId: item.productId._id || item.productId,
-          name: item.productId.name,
-          quantity: item.quantity,
-          price: item.price,
-        }))
-      );
-
-      setCartTotal(cartData.totalPrice || 0);
+    if (data?.items) {
+      setCart(normalizeCart(data.items));
+      setCartTotal(data.totalPrice || 0);
     }
   };
 
   const removeFromCart = async (productId) => {
-    const userId =
-      localStorage.getItem("userId") || generateUserId();
+    const userId = localStorage.getItem("userId") || getUserId();
 
-    const cartData = await cartAPI.removeItem(userId, productId);
+    const data = await cartAPI.removeItem(userId, productId);
 
-    if (cartData?.items) {
-      setCart(
-        cartData.items.map((item) => ({
-          productId: item.productId._id || item.productId,
-          name: item.productId.name,
-          quantity: item.quantity,
-          price: item.price,
-        }))
-      );
-
-      setCartTotal(cartData.totalPrice || 0);
+    if (data?.items) {
+      setCart(normalizeCart(data.items));
+      setCartTotal(data.totalPrice || 0);
     }
   };
 
   const updateCartQuantity = async (productId, quantity) => {
-    const userId =
-      localStorage.getItem("userId") || generateUserId();
+    const userId = localStorage.getItem("userId") || getUserId();
 
-    const cartData = await cartAPI.updateQuantity(
+    const data = await cartAPI.updateQuantity(
       userId,
       productId,
       quantity
     );
 
-    if (cartData?.items) {
-      setCart(
-        cartData.items.map((item) => ({
-          productId: item.productId._id || item.productId,
-          name: item.productId.name,
-          quantity: item.quantity,
-          price: item.price,
-        }))
-      );
-
-      setCartTotal(cartData.totalPrice || 0);
+    if (data?.items) {
+      setCart(normalizeCart(data.items));
+      setCartTotal(data.totalPrice || 0);
     }
   };
 
   const clearCart = async () => {
-    const userId =
-      localStorage.getItem("userId") || generateUserId();
+    const userId = localStorage.getItem("userId") || getUserId();
 
     await cartAPI.clearCart(userId);
 
@@ -183,14 +136,4 @@ export const AppProvider = (props) => {
   );
 };
 
-export const useApp = () => {
-  const context = useContext(AppContext);
-
-  if (!context) {
-    throw new Error("useApp must be used within AppProvider");
-  }
-
-  return context;
-};
-
-export default AppContext;
+export const useApp = () => useContext(AppContext);
