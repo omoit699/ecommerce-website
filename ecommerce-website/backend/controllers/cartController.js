@@ -3,8 +3,7 @@ import Cart from "../models/Cart.js";
 class CartController {
   async getCart(req, res) {
     try {
-      const userId = req.user.id;
-      const cart = await Cart.findOne({ userId });
+      const cart = await Cart.findOne({ userId: req.user.id });
       res.json(cart || { items: [] });
     } catch (err) {
       res.status(500).json({ message: "Error getting cart" });
@@ -13,21 +12,18 @@ class CartController {
 
   async addToCart(req, res) {
     try {
-      const userId = req.user.id;
       const { productId, quantity } = req.body;
 
-      let cart = await Cart.findOne({ userId });
+      let cart = await Cart.findOne({ userId: req.user.id });
 
       if (!cart) {
-        cart = new Cart({ userId, items: [] });
+        cart = new Cart({ userId: req.user.id, items: [] });
       }
 
-      const itemIndex = cart.items.findIndex(
-        (i) => i.productId === productId
-      );
+      const item = cart.items.find((i) => i.productId === productId);
 
-      if (itemIndex > -1) {
-        cart.items[itemIndex].quantity += quantity;
+      if (item) {
+        item.quantity += quantity;
       } else {
         cart.items.push({ productId, quantity });
       }
@@ -41,10 +37,9 @@ class CartController {
 
   async removeFromCart(req, res) {
     try {
-      const userId = req.user.id;
       const { productId } = req.body;
 
-      const cart = await Cart.findOne({ userId });
+      const cart = await Cart.findOne({ userId: req.user.id });
 
       if (!cart) return res.status(404).json({ message: "Cart not found" });
 
@@ -59,10 +54,9 @@ class CartController {
 
   async updateCart(req, res) {
     try {
-      const userId = req.user.id;
       const { productId, quantity } = req.body;
 
-      const cart = await Cart.findOne({ userId });
+      const cart = await Cart.findOne({ userId: req.user.id });
 
       if (!cart) return res.status(404).json({ message: "Cart not found" });
 

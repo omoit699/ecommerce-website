@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import bcrypt from "bcryptjs";
 import User from "../models/User.js";
 
-const JWT_SECRET = process.env.JWT_SECRET || "secret_key";
+const JWT_SECRET = process.env.JWT_SECRET;
 
 class AuthController {
   async register(req, res) {
@@ -16,29 +16,35 @@ class AuthController {
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      const user = new User({
+      const user = await User.create({
         username,
         email,
         password: hashedPassword,
+        role: "user",
       });
 
-      await user.save();
-
-      res.status(201).json({ message: "User registered successfully" });
+      res.status(201).json({
+        message: "User registered successfully",
+        user: { id: user._id, email: user.email },
+      });
     } catch (err) {
       res.status(500).json({ message: "Register error" });
     }
   }
 
-  async signIn(req, res) {
+  async login(req, res) {
     try {
       const { email, password } = req.body;
 
       const user = await User.findOne({ email });
-      if (!user) return res.status(404).json({ message: "User not found" });
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
 
-      const match = await bcrypt.compare(password, user.password);
-      if (!match) return res.status(401).json({ message: "Invalid credentials" });
+      const isMatch = await bcrypt.compare(password, user.password);
+      if (!isMatch) {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
 
       const token = jwt.sign(
         { id: user._id, role: user.role },
@@ -46,7 +52,14 @@ class AuthController {
         { expiresIn: "7d" }
       );
 
-      res.json({ token, user });
+      res.json({
+        token,
+        user: {
+          id: user._id,
+          email: user.email,
+          role: user.role,
+        },
+      });
     } catch (err) {
       res.status(500).json({ message: "Login error" });
     }
@@ -55,6 +68,10 @@ class AuthController {
   async getUser(req, res) {
     try {
       const user = await User.findById(req.params.id).select("-password");
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
       res.json(user);
     } catch (err) {
       res.status(500).json({ message: "Error fetching user" });
@@ -62,7 +79,7 @@ class AuthController {
   }
 
   async logout(req, res) {
-    res.json({ message: "Logged out" });
+    res.json({ message: "Logged out successfully" });
   }
 }
 
