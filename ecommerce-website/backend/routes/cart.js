@@ -1,11 +1,27 @@
 import { Router } from "express";
 import cartController from "../controllers/cartController.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = Router();
 
-router.get("/", cartController.getCart.bind(cartController));
-router.post("/add", cartController.addToCart.bind(cartController));
-router.post("/remove", cartController.removeFromCart.bind(cartController));
-router.post("/update", cartController.updateCart.bind(cartController));
+router.get("/", authMiddleware, cartController.getCart.bind(cartController));
+
+router.post(
+  "/add",
+  authMiddleware,
+  cartController.addToCart.bind(cartController)
+);
+
+router.post(
+  "/remove",
+  authMiddleware,
+  cartController.removeFromCart.bind(cartController)
+);
+
+router.put(
+  "/update",
+  authMiddleware,
+  cartController.updateCart.bind(cartController)
+);
 
 export default router;

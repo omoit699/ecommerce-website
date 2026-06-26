@@ -1,11 +1,13 @@
 import { Router } from "express";
-import CheckoutController from "../controllers/checkoutController.js";
+import checkoutController from "../controllers/checkoutController.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = Router();
-const checkoutController = new CheckoutController();
 
-router.post("/process", checkoutController.processOrder.bind(checkoutController));
-router.get("/history/:userId", checkoutController.getOrderHistory);
-router.get("/order/:orderId", checkoutController.getOrderById);
+router.post(
+  "/",
+  authMiddleware,
+  checkoutController.processOrder.bind(checkoutController)
+);
 
 export default router;

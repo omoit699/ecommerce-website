@@ -1,13 +1,33 @@
 import { Router } from "express";
-import InventoryController from "../controllers/inventoryController.js";
+import inventoryController from "../controllers/inventoryController.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
+import { authorizeRoles } from "../middleware/roleMiddleware.js";
 
 const router = Router();
-const inventoryController = new InventoryController();
 
-router.get("/", inventoryController.getAllItems);
-router.get("/:id", inventoryController.getItemById);
-router.post("/", inventoryController.addItem);
-router.put("/:id", inventoryController.updateItem);
-router.delete("/:id", inventoryController.deleteItem);
+router.get("/", inventoryController.getAll.bind(inventoryController));
+
+router.get("/:id", inventoryController.getById.bind(inventoryController));
+
+router.post(
+  "/",
+  authMiddleware,
+  authorizeRoles("admin"),
+  inventoryController.create.bind(inventoryController)
+);
+
+router.put(
+  "/:id",
+  authMiddleware,
+  authorizeRoles("admin"),
+  inventoryController.update.bind(inventoryController)
+);
+
+router.delete(
+  "/:id",
+  authMiddleware,
+  authorizeRoles("admin"),
+  inventoryController.delete.bind(inventoryController)
+);
 
 export default router;
