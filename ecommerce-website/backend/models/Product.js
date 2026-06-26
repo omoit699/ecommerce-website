@@ -1,14 +1,40 @@
-import jwt from "jsonwebtoken";
+import mongoose from "mongoose";
 
-export const authenticateToken = (req, res, next) => {
-  const token = req.headers.authorization?.split(" ")[1];
-
-  if (!token) return res.sendStatus(401);
-
-  try {
-    req.user = jwt.verify(token, process.env.JWT_SECRET || "secret");
-    next();
-  } catch {
-    return res.sendStatus(403);
+const productSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    price: {
+      type: Number,
+      required: true,
+      min: 0,
+    },
+    description: {
+      type: String,
+      default: "",
+    },
+    category: {
+      type: String,
+      default: "general",
+    },
+    stock: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    image: {
+      type: String,
+      default: "",
+    },
+  },
+  {
+    timestamps: true,
   }
-};
+);
+
+const Product = mongoose.model("Product", productSchema);
+
+export default Product;
