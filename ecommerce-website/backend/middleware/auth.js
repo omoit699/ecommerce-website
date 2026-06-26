@@ -1,16 +1,17 @@
 import jwt from "jsonwebtoken";
 
-const secretKey = process.env.JWT_SECRET || "your_secret_key";
-
-export const authenticateToken = (req, res, next) => {
+export const authMiddleware = (req, res, next) => {
   const token = req.headers.authorization?.split(" ")[1];
 
-  if (!token) return res.status(401).json({ message: "No token" });
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
+  }
 
-  jwt.verify(token, secretKey, (err, user) => {
-    if (err) return res.status(403).json({ message: "Invalid token" });
-
-    req.user = user;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded;
     next();
-  });
+  } catch (err) {
+    res.status(403).json({ message: "Invalid token" });
+  }
 };
