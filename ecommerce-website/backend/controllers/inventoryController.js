@@ -1,48 +1,135 @@
+import Inventory from "../models/Inventory.js";
+
 class InventoryController {
-  constructor(private inventoryService: any) {}
-
-  async getInventory(req: any, res: any) {
+  async getAllItems(req, res) {
     try {
-      const inventory = await this.inventoryService.getAllItems();
-      res.status(200).json(inventory);
+      const items = await Inventory.find();
+      return res.status(200).json({
+        success: true,
+        data: items,
+      });
     } catch (error) {
-      res.status(500).json({ message: "Error fetching inventory", error });
+      console.error("getAllItems error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch inventory",
+      });
     }
   }
 
-  async addItem(req: any, res: any) {
+  async getItemById(req, res) {
     try {
-      const newItem = req.body;
-      const addedItem = await this.inventoryService.addItem(newItem);
-      res.status(201).json(addedItem);
+      const { id } = req.params;
+
+      const item = await Inventory.findById(id);
+
+      if (!item) {
+        return res.status(404).json({
+          success: false,
+          message: "Item not found",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: item,
+      });
     } catch (error) {
-      res.status(500).json({ message: "Error adding item", error });
+      console.error("getItemById error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch item",
+      });
     }
   }
 
-  async updateItem(req: any, res: any) {
+  async addItem(req, res) {
     try {
-      const itemId = req.params.id;
-      const updatedItem = req.body;
-      const result = await this.inventoryService.updateItem(
-        itemId,
-        updatedItem,
-      );
-      res.status(200).json(result);
+      const { name, quantity, price, category } = req.body;
+
+      if (!name || quantity == null) {
+        return res.status(400).json({
+          success: false,
+          message: "Name and quantity are required",
+        });
+      }
+
+      const newItem = new Inventory({
+        name,
+        quantity,
+        price,
+        category,
+      });
+
+      const saved = await newItem.save();
+
+      return res.status(201).json({
+        success: true,
+        data: saved,
+      });
     } catch (error) {
-      res.status(500).json({ message: "Error updating item", error });
+      console.error("addItem error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to add item",
+      });
     }
   }
 
-  async deleteItem(req: any, res: any) {
+  async updateItem(req, res) {
     try {
-      const itemId = req.params.id;
-      await this.inventoryService.deleteItem(itemId);
-      res.status(204).send();
+      const { id } = req.params;
+
+      const updated = await Inventory.findByIdAndUpdate(id, req.body, {
+        new: true,
+        runValidators: true,
+      });
+
+      if (!updated) {
+        return res.status(404).json({
+          success: false,
+          message: "Item not found",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        data: updated,
+      });
     } catch (error) {
-      res.status(500).json({ message: "Error deleting item", error });
+      console.error("updateItem error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to update item",
+      });
+    }
+  }
+
+  async deleteItem(req, res) {
+    try {
+      const { id } = req.params;
+
+      const deleted = await Inventory.findByIdAndDelete(id);
+
+      if (!deleted) {
+        return res.status(404).json({
+          success: false,
+          message: "Item not found",
+        });
+      }
+
+      return res.status(200).json({
+        success: true,
+        message: "Item deleted successfully",
+      });
+    } catch (error) {
+      console.error("deleteItem error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to delete item",
+      });
     }
   }
 }
 
-export default InventoryController;
+export default new InventoryController();
