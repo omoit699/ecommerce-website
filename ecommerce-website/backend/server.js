@@ -1,37 +1,38 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+
 import connectDB from "./config/db.js";
-import routes from "./app.js";
-import { errorHandler } from "./middleware/errorMiddleware.js";
-import rateLimiter from "./middleware/rateLimiter.js";
+
+// routes
+import authRoutes from "./routes/auth.js";
+import productRoutes from "./routes/products.js";
+import cartRoutes from "./routes/cart.js";
+import inventoryRoutes from "./routes/inventory.js";
+import checkoutRoutes from "./routes/checkout.js";
 
 dotenv.config();
-connectDB();
 
 const app = express();
 
-/* 🔐 SECURITY MIDDLEWARE */
-app.use(rateLimiter);
-
-/* 🌍 CORS (PRODUCTION SAFE) */
-app.use(
-  cors({
-    origin: [
-      "http://localhost:3000",
-      "https://your-frontend-domain.com",
-    ],
-    credentials: true,
-  })
-);
-
+// middleware
+app.use(cors());
 app.use(express.json());
 
-/* ROUTES */
-app.use("/api", routes);
+// connect DB FIRST
+connectDB();
 
-/* ERROR HANDLER */
-app.use(errorHandler);
+// routes
+app.use("/api/auth", authRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/cart", cartRoutes);
+app.use("/api/inventory", inventoryRoutes);
+app.use("/api/checkout", checkoutRoutes);
+
+// health check
+app.get("/", (req, res) => {
+  res.send("API running...");
+});
 
 const PORT = process.env.PORT || 5000;
 
