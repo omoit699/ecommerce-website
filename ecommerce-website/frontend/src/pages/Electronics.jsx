@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import ProductCard from "../components/ProductCard.jsx";
-// Pointing to your correct, clean JavaScript api file
 import { productAPI } from "../services/api.js";
 
 const Electronics = () => {
@@ -12,11 +11,18 @@ const Electronics = () => {
     const fetchProducts = async () => {
       try {
         setIsLoading(true);
+
         const data = await productAPI.getAllProducts("Electronics");
-        setProducts(data || []);
+
+        const safeData = Array.isArray(data)
+          ? data
+          : data?.products || [];
+
+        setProducts(safeData);
       } catch (err) {
         setError("Failed to load electronics");
         console.error(err);
+        setProducts([]);
       } finally {
         setIsLoading(false);
       }
@@ -27,41 +33,22 @@ const Electronics = () => {
 
   return (
     <div className="container">
-      <div className="category-page">
-        <h1 style={{ textAlign: "center", margin: "20px 0" }}>
-          Electronics Collection
-        </h1>
+      <h1>Electronics</h1>
 
-        {isLoading && (
-          <p style={{ textAlign: "center" }}>Loading products...</p>
-        )}
-        {error && (
-          <p className="error" style={{ color: "red", textAlign: "center" }}>
-            {error}
-          </p>
-        )}
+      {isLoading && <p>Loading...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
-        <div
-          className="product-list"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-            gap: "20px",
-          }}
-        >
-          {products.length > 0
-            ? products.map((product) => (
-                <ProductCard
-                  key={product._id || product.id}
-                  product={product}
-                />
-              ))
-            : !isLoading && (
-                <p style={{ textAlign: "center", gridColumn: "1 / -1" }}>
-                  No electronics available
-                </p>
-              )}
-        </div>
+      <div className="product-list">
+        {products.length > 0 ? (
+          products.map((product) => (
+            <ProductCard
+              key={product._id || product.id}
+              product={product}
+            />
+          ))
+        ) : (
+          !isLoading && <p>No electronics found</p>
+        )}
       </div>
     </div>
   );

@@ -1,26 +1,23 @@
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useContext, useState } from "react";
 import { authAPI, cartAPI } from "../services/api.js";
 
-const AppContext = createContext(null);
+const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem("token"));
   const [cart, setCart] = useState([]);
   const [cartTotal, setCartTotal] = useState(0);
 
-  const getUserId = () =>
-    localStorage.getItem("userId") || "guest-" + Date.now();
+  const getUserId = () => localStorage.getItem("userId");
 
   /* ================= AUTH ================= */
   const login = async (email, password) => {
     const res = await authAPI.signin(email, password);
 
     setUser(res.user);
-    setToken(res.token);
 
     localStorage.setItem("token", res.token);
-    localStorage.setItem("userId", res.user.id);
+    localStorage.setItem("userId", res.user._id);
 
     await fetchCart();
   };
@@ -34,81 +31,61 @@ export const AppProvider = ({ children }) => {
     );
 
     setUser(res.user);
-    setToken(res.token);
 
     localStorage.setItem("token", res.token);
-    localStorage.setItem("userId", res.user.id);
+    localStorage.setItem("userId", res.user._id);
   };
 
   const logout = () => {
     setUser(null);
-    setToken(null);
     setCart([]);
     setCartTotal(0);
-
     localStorage.clear();
   };
 
   /* ================= CART ================= */
-  const normalizeCart = (items = []) =>
-    items.map((item) => ({
-      productId: item.productId?._id || item.productId,
-      name: item.productId?.name || item.name,
-      quantity: item.quantity,
-      price: item.price,
+  const normalize = (items = []) =>
+    items.map((i) => ({
+      productId: i.productId?._id || i.productId,
+      name: i.productId?.name || i.name,
+      price: i.price || 0,
+      quantity: i.quantity || 1,
     }));
 
   const fetchCart = async () => {
-    const userId = localStorage.getItem("userId") || getUserId();
-    const data = await cartAPI.getCart(userId);
+    const res = await cartAPI.getCart(getUserId());
 
-    if (data?.items) {
-      setCart(normalizeCart(data.items));
-      setCartTotal(data.totalPrice || 0);
-    }
+    setCart(normalize(res?.items || []));
+    setCartTotal(res?.totalPrice || 0);
   };
 
   const addToCart = async (productId, name, price, quantity) => {
-    const userId = localStorage.getItem("userId") || getUserId();
+    const res = await cartAPI.addItem(getUserId(), productId, quantity);
 
-    const data = await cartAPI.addItem(userId, productId, quantity);
-
-    if (data?.items) {
-      setCart(normalizeCart(data.items));
-      setCartTotal(data.totalPrice || 0);
-    }
+    setCart(normalize(res?.items || []));
+    setCartTotal(res?.totalPrice || 0);
   };
 
   const removeFromCart = async (productId) => {
-    const userId = localStorage.getItem("userId") || getUserId();
+    const res = await cartAPI.removeItem(getUserId(), productId);
 
-    const data = await cartAPI.removeItem(userId, productId);
-
-    if (data?.items) {
-      setCart(normalizeCart(data.items));
-      setCartTotal(data.totalPrice || 0);
-    }
+    setCart(normalize(res?.items || []));
+    setCartTotal(res?.totalPrice || 0);
   };
 
   const updateCartQuantity = async (productId, quantity) => {
-    const userId = localStorage.getItem("userId") || getUserId();
-
-    const data = await cartAPI.updateQuantity(
-      userId,
+    const res = await cartAPI.updateQuantity(
+      getUserId(),
       productId,
       quantity
     );
 
-    if (data?.items) {
-      setCart(normalizeCart(data.items));
-      setCartTotal(data.totalPrice || 0);
-    }
+    setCart(normalize(res?.items || []));
+    setCartTotal(res?.totalPrice || 0);
   };
 
   const clearCart = async () => {
-    const userId = localStorage.getItem("userId") || getUserId();
-
-    await cartAPI.clearCart(userId);
+    await cartAPI.clearCart(getUserId());
 
     setCart([]);
     setCartTotal(0);
@@ -118,7 +95,6 @@ export const AppProvider = ({ children }) => {
     <AppContext.Provider
       value={{
         user,
-        token,
         cart,
         cartTotal,
         login,

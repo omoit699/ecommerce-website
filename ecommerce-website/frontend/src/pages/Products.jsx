@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import ProductCard from "../components/ProductCard.jsx";
-// Import your clean, centralized API services file
 import { productAPI } from "../services/api.js";
 
 const Products = () => {
@@ -11,11 +10,17 @@ const Products = () => {
     const fetchProducts = async () => {
       try {
         setIsLoading(true);
-        // Uses the pre-configured base URL instead of a broken relative route
+
         const data = await productAPI.getAllProducts();
-        setProducts(data || []);
+
+        const safeData = Array.isArray(data)
+          ? data
+          : data?.products || [];
+
+        setProducts(safeData);
       } catch (error) {
         console.error("Error fetching products:", error);
+        setProducts([]);
       } finally {
         setIsLoading(false);
       }
@@ -26,36 +31,21 @@ const Products = () => {
 
   return (
     <div className="container">
-      <div className="products-page">
-        <h1 style={{ textAlign: "center", margin: "20px 0" }}>
-          Available Products
-        </h1>
+      <h1>All Products</h1>
 
-        {isLoading && (
-          <p style={{ textAlign: "center" }}>Loading products...</p>
+      {isLoading && <p>Loading...</p>}
+
+      <div className="product-list">
+        {products.length > 0 ? (
+          products.map((product) => (
+            <ProductCard
+              key={product._id || product.id}
+              product={product}
+            />
+          ))
+        ) : (
+          !isLoading && <p>No products found</p>
         )}
-
-        <div
-          className="product-list"
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(250px, 1fr))",
-            gap: "20px",
-          }}
-        >
-          {products.length > 0
-            ? products.map((product) => (
-                <ProductCard
-                  key={product._id || product.id}
-                  product={product}
-                />
-              ))
-            : !isLoading && (
-                <p style={{ textAlign: "center", gridColumn: "1 / -1" }}>
-                  No products found
-                </p>
-              )}
-        </div>
       </div>
     </div>
   );

@@ -1,97 +1,54 @@
-const API_BASE_URL =
-  import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+import apiClient from "./apiClient";
 
-/* =========================
-   SAFE REQUEST
-========================= */
-async function request(url, options = {}) {
-  const res = await fetch(url, {
-    method: options.method || "GET",
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    },
-    body: options.body ? JSON.stringify(options.body) : undefined,
-  });
-
-  const data = await res.json().catch(() => ({}));
-
-  if (!res.ok) {
-    throw new Error(data.message || `HTTP Error ${res.status}`);
-  }
-
-  return data;
-}
-
-/* =========================
-   AUTH API
-========================= */
+/* ================= AUTH ================= */
 export const authAPI = {
   register: (username, email, password, confirmPassword) =>
-    request(`${API_BASE_URL}/auth/register`, {
-      method: "POST",
-      body: { username, email, password, confirmPassword },
+    apiClient.post("/auth/register", {
+      username,
+      email,
+      password,
+      confirmPassword,
     }),
 
   signin: (email, password) =>
-    request(`${API_BASE_URL}/auth/signin`, {
-      method: "POST",
-      body: { email, password },
-    }),
+    apiClient.post("/auth/signin", { email, password }),
 };
 
-/* =========================
-   PRODUCT API
-========================= */
+/* ================= PRODUCTS ================= */
 export const productAPI = {
-  getAllProducts: (category) => {
-    const url = category
-      ? `${API_BASE_URL}/products?category=${category}`
-      : `${API_BASE_URL}/products`;
-
-    return request(url);
-  },
+  getAllProducts: (category) =>
+    apiClient.get(
+      category ? `/products?category=${category}` : "/products"
+    ),
 };
 
-/* =========================
-   CART API
-========================= */
+/* ================= CART ================= */
 export const cartAPI = {
-  getCart: (userId) => request(`${API_BASE_URL}/cart/${userId}`),
+  getCart: (userId) => apiClient.get(`/cart/${userId}`),
 
   addItem: (userId, productId, quantity) =>
-    request(`${API_BASE_URL}/cart/${userId}/add`, {
-      method: "POST",
-      body: { productId, quantity },
+    apiClient.post(`/cart/${userId}/add`, {
+      productId,
+      quantity,
     }),
 
   removeItem: (userId, productId) =>
-    request(`${API_BASE_URL}/cart/${userId}/remove/${productId}`, {
-      method: "DELETE",
-    }),
+    apiClient.delete(`/cart/${userId}/remove/${productId}`),
 
   updateQuantity: (userId, productId, quantity) =>
-    request(`${API_BASE_URL}/cart/${userId}/update/${productId}`, {
-      method: "PUT",
-      body: { quantity },
+    apiClient.put(`/cart/${userId}/update/${productId}`, {
+      quantity,
     }),
 
   clearCart: (userId) =>
-    request(`${API_BASE_URL}/cart/${userId}/clear`, {
-      method: "POST",
-    }),
+    apiClient.post(`/cart/${userId}/clear`),
 };
 
-/* =========================
-   CHECKOUT API (FIXED)
-========================= */
+/* ================= CHECKOUT ================= */
 export const checkoutAPI = {
   processOrder: (payload) =>
-    request(`${API_BASE_URL}/checkout/process`, {
-      method: "POST",
-      body: payload,
-    }),
+    apiClient.post("/checkout/process", payload),
 
   getOrderHistory: (userId) =>
-    request(`${API_BASE_URL}/checkout/history/${userId}`),
+    apiClient.get(`/checkout/history/${userId}`),
 };
