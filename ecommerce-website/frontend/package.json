@@ -1,7 +1,7 @@
 {
   "name": "loris-e-9-frontend",
   "version": "1.0.0",
-  "description": "Frontend React application for Loris E-9 E-commerce store.",
+  "description": "Frontend React application for Loris E-9 E-commerce store",
   "private": true,
   "type": "module",
 
@@ -13,10 +13,10 @@
   },
 
   "dependencies": {
-    "axios": "^1.7.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.23.1"
+    "react-router-dom": "^6.23.1",
+    "axios": "^1.7.0"
   },
 
   "devDependencies": {
@@ -26,9 +26,6 @@
     "eslint": "^9.0.0",
     "@eslint/js": "^9.0.0",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^7.1.1",
-
-    "@babel/core": "^8.0.1",
-    "@babel/eslint-parser": "^8.0.1"
+    "eslint-plugin-react-hooks": "^7.1.1"
   }
 }
