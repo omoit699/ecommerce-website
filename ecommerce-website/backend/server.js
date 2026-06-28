@@ -1,29 +1,35 @@
 import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
+
+// ROUTES
+import productRoutes from "./routes/productRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 
-const app = express(); // ✅ MUST COME FIRST
+const app = express(); // MUST be first
 
+// MIDDLEWARE
 app.use(cors());
 app.use(express.json());
 
-// routes
+// ROUTES
+app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 
-// test route
+// TEST ROUTE (ROOT)
 app.get("/", (req, res) => {
   res.send("API is running 🚀");
 });
 
-// DB connection
+// DATABASE CONNECTION
 mongoose
   .connect(process.env.MONGO_URI)
-  .then(() => console.log("MongoDB connected"))
-  .catch((err) => console.log(err));
+  .then(() => console.log("MongoDB connected ✅"))
+  .catch((err) => console.log("MongoDB error ❌", err));
 
-// start server
+// START SERVER
 const PORT = process.env.PORT || 10000;
+
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
