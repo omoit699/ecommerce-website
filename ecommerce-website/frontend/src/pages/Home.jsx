@@ -1,87 +1,134 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+const categories = [
+  "All",
+  "Electronics",
+  "Fashion",
+  "Shoes",
+  "Home & Living",
+  "Kitchen & Dining",
+  "Beauty",
+  "Baby Products",
+  "Sports",
+  "Pets",
+];
+
 const Home = () => {
   const [products, setProducts] = useState([]);
+  const [filtered, setFiltered] = useState([]);
+  const [cart, setCart] = useState([]);
+  const [activeCategory, setActiveCategory] = useState("All");
   const [loading, setLoading] = useState(true);
 
+  // FETCH PRODUCTS
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const API_URL = import.meta.env.VITE_API_URL;
         const res = await axios.get(`${API_URL}/api/products`);
+
         setProducts(res.data);
+        setFiltered(res.data);
       } catch (err) {
-        console.log(err);
+        console.log("Error fetching products", err);
       } finally {
         setLoading(false);
       }
     };
 
     fetchProducts();
+
+    const savedCart = JSON.parse(localStorage.getItem("cart")) || [];
+    setCart(savedCart);
   }, []);
+
+  // ADD TO CART
+  const addToCart = (product) => {
+    const updated = [...cart, product];
+    setCart(updated);
+    localStorage.setItem("cart", JSON.stringify(updated));
+    alert(`${product.name} added to cart 🛒`);
+  };
+
+  // FILTER CATEGORY
+  const filterCategory = (category) => {
+    setActiveCategory(category);
+
+    if (category === "All") {
+      setFiltered(products);
+    } else {
+      const filteredData = products.filter(
+        (p) => p.category === category
+      );
+      setFiltered(filteredData);
+    }
+  };
 
   return (
     <div style={styles.page}>
 
-      {/* NAVBAR */}
-      <header style={styles.navbar}>
-        <h2 style={styles.logo}>🛒 Loris E9</h2>
-
-        <input
-          type="text"
-          placeholder="Search products..."
-          style={styles.search}
-        />
-
-        <div style={styles.navRight}>
-          <span>Login</span>
-          <span>Cart 🛒</span>
+      {/* HEADER */}
+      <header style={styles.header}>
+        <h2>🛒 Loris E9 Store</h2>
+        <input placeholder="Search products..." style={styles.search} />
+        <div>
+          Cart: <b>{cart.length}</b>
         </div>
       </header>
 
-      {/* HERO BANNER */}
-      <section style={styles.hero}>
-        <h1>Welcome to Loris E9 Store</h1>
-        <p>Hardware, Tools, Building Materials & More</p>
-      </section>
+      {/* CATEGORY BAR */}
+      <div style={styles.categoryBar}>
+        {categories.map((cat) => (
+          <button
+            key={cat}
+            onClick={() => filterCategory(cat)}
+            style={{
+              ...styles.catBtn,
+              background: activeCategory === cat ? "#ff6600" : "#eee",
+              color: activeCategory === cat ? "white" : "black",
+            }}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
 
-      {/* CATEGORIES */}
-      <section style={styles.categories}>
-        <div style={styles.catBox}>Cement</div>
-        <div style={styles.catBox}>Tools</div>
-        <div style={styles.catBox}>Plumbing</div>
-        <div style={styles.catBox}>Electrical</div>
-        <div style={styles.catBox}>Paint</div>
-      </section>
+      {/* CONTENT */}
+      <div style={styles.container}>
 
-      {/* PRODUCTS */}
-      <section style={styles.products}>
-        <h2>Featured Products</h2>
+        <h3>{activeCategory} Products</h3>
 
         {loading && <p>Loading products...</p>}
 
         <div style={styles.grid}>
-          {products.map((p) => (
+          {filtered.map((p) => (
             <div key={p._id} style={styles.card}>
-              <div style={styles.imgBox}>
-                {p.image ? (
-                  <img src={p.image} alt={p.name} style={styles.image} />
-                ) : (
-                  <div style={styles.noImage}>No Image</div>
-                )}
-              </div>
 
-              <h3>{p.name}</h3>
+              {p.image ? (
+                <img src={p.image} alt={p.name} style={styles.img} />
+              ) : (
+                <div style={styles.noImg}>No Image</div>
+              )}
+
+              <h4>{p.name}</h4>
+
               <p style={styles.price}>
                 UGX {p.price?.toLocaleString()}
               </p>
 
-              <button style={styles.btn}>Add to Cart</button>
+              <button
+                onClick={() => addToCart(p)}
+                style={styles.btn}
+              >
+                Add to Cart
+              </button>
+
             </div>
           ))}
         </div>
-      </section>
+
+      </div>
     </div>
   );
 };
@@ -89,22 +136,17 @@ const Home = () => {
 const styles = {
   page: {
     fontFamily: "Arial",
-    background: "#f5f5f5",
+    background: "#f4f4f4",
     minHeight: "100vh",
   },
 
-  /* NAVBAR */
-  navbar: {
+  header: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
     background: "#ff6600",
     padding: "10px 20px",
     color: "white",
-  },
-
-  logo: {
-    margin: 0,
   },
 
   search: {
@@ -114,38 +156,22 @@ const styles = {
     border: "none",
   },
 
-  navRight: {
+  categoryBar: {
     display: "flex",
-    gap: "15px",
-    cursor: "pointer",
-  },
-
-  /* HERO */
-  hero: {
-    background: "#fff",
-    padding: "40px",
-    textAlign: "center",
-    marginBottom: "10px",
-  },
-
-  /* CATEGORIES */
-  categories: {
-    display: "flex",
-    justifyContent: "center",
+    flexWrap: "wrap",
     gap: "10px",
     padding: "10px",
-    flexWrap: "wrap",
+    background: "#fff",
   },
 
-  catBox: {
-    background: "#fff",
-    padding: "10px 15px",
+  catBtn: {
+    padding: "8px 12px",
+    border: "none",
     borderRadius: "20px",
     cursor: "pointer",
   },
 
-  /* PRODUCTS */
-  products: {
+  container: {
     padding: "20px",
   },
 
@@ -153,6 +179,7 @@ const styles = {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
     gap: "15px",
+    marginTop: "15px",
   },
 
   card: {
@@ -162,21 +189,18 @@ const styles = {
     textAlign: "center",
   },
 
-  imgBox: {
+  img: {
+    width: "100%",
+    height: "120px",
+    objectFit: "contain",
+  },
+
+  noImg: {
     height: "120px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-  },
-
-  image: {
-    maxWidth: "100%",
-    maxHeight: "120px",
-    objectFit: "contain",
-  },
-
-  noImage: {
-    color: "#999",
+    color: "#aaa",
   },
 
   price: {
@@ -189,8 +213,8 @@ const styles = {
     border: "none",
     padding: "8px",
     width: "100%",
-    borderRadius: "5px",
     cursor: "pointer",
+    borderRadius: "5px",
   },
 };
 
