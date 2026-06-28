@@ -3,7 +3,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 
 // ROUTES
-import productRoutes from "./routes/product.js";
+import productRoutes from "./routes/products.js";
 import orderRoutes from "./routes/orderRoutes.js";
 
 const app = express(); // MUST be first
