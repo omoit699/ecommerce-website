@@ -8,8 +8,6 @@ import orderRoutes from "./routes/orderRoutes.js";
 
 const app = express(); // MUST be first
 
-console.log("SERVER VERSION: 28 JUNE TEST");
-
 // MIDDLEWARE
 app.use(cors());
 app.use(express.json());
