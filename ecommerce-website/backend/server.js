@@ -10,6 +10,9 @@ import productRoutes from "./routes/products.js";
 import cartRoutes from "./routes/cart.js";
 import inventoryRoutes from "./routes/inventory.js";
 import checkoutRoutes from "./routes/checkout.js";
+import orderRoutes from "./routes/orderRoutes.js";
+
+app.use("/api/orders", orderRoutes);
 
 dotenv.config();
 
