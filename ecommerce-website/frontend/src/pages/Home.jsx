@@ -4,20 +4,16 @@ import axios from "axios";
 const Home = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const API_URL = import.meta.env.VITE_API_URL;
-
-        const response = await axios.get(`${API_URL}/api/products`);
-
-        setProducts(response.data);
-        setLoading(false);
+        const res = await axios.get(`${API_URL}/api/products`);
+        setProducts(res.data);
       } catch (err) {
-        console.error(err);
-        setError("Failed to load products. Please try again later.");
+        console.log(err);
+      } finally {
         setLoading(false);
       }
     };
@@ -26,44 +22,62 @@ const Home = () => {
   }, []);
 
   return (
-    <div style={styles.container}>
-      <header style={styles.header}>
-        <h1>🛒 Loris E-Commerce Store</h1>
-        <p>Your trusted online hardware shop</p>
+    <div style={styles.page}>
+
+      {/* NAVBAR */}
+      <header style={styles.navbar}>
+        <h2 style={styles.logo}>🛒 Loris E9</h2>
+
+        <input
+          type="text"
+          placeholder="Search products..."
+          style={styles.search}
+        />
+
+        <div style={styles.navRight}>
+          <span>Login</span>
+          <span>Cart 🛒</span>
+        </div>
       </header>
 
-      <section style={styles.section}>
+      {/* HERO BANNER */}
+      <section style={styles.hero}>
+        <h1>Welcome to Loris E9 Store</h1>
+        <p>Hardware, Tools, Building Materials & More</p>
+      </section>
+
+      {/* CATEGORIES */}
+      <section style={styles.categories}>
+        <div style={styles.catBox}>Cement</div>
+        <div style={styles.catBox}>Tools</div>
+        <div style={styles.catBox}>Plumbing</div>
+        <div style={styles.catBox}>Electrical</div>
+        <div style={styles.catBox}>Paint</div>
+      </section>
+
+      {/* PRODUCTS */}
+      <section style={styles.products}>
         <h2>Featured Products</h2>
 
         {loading && <p>Loading products...</p>}
-        {error && <p style={{ color: "red" }}>{error}</p>}
-
-        {!loading && !error && products.length === 0 && (
-          <p>No products available at the moment.</p>
-        )}
 
         <div style={styles.grid}>
-          {products.map((product) => (
-            <div key={product._id} style={styles.card}>
-              <h3>{product.name}</h3>
+          {products.map((p) => (
+            <div key={p._id} style={styles.card}>
+              <div style={styles.imgBox}>
+                {p.image ? (
+                  <img src={p.image} alt={p.name} style={styles.image} />
+                ) : (
+                  <div style={styles.noImage}>No Image</div>
+                )}
+              </div>
 
-              {product.image && (
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  style={styles.image}
-                />
-              )}
-
+              <h3>{p.name}</h3>
               <p style={styles.price}>
-                UGX {product.price?.toLocaleString()}
+                UGX {p.price?.toLocaleString()}
               </p>
 
-              <p style={styles.desc}>
-                {product.description || "No description available"}
-              </p>
-
-              <button style={styles.button}>Add to Cart</button>
+              <button style={styles.btn}>Add to Cart</button>
             </div>
           ))}
         </div>
@@ -73,60 +87,108 @@ const Home = () => {
 };
 
 const styles = {
-  container: {
-    padding: "20px",
-    fontFamily: "Arial, sans-serif",
+  page: {
+    fontFamily: "Arial",
+    background: "#f5f5f5",
+    minHeight: "100vh",
   },
 
-  header: {
+  /* NAVBAR */
+  navbar: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    background: "#ff6600",
+    padding: "10px 20px",
+    color: "white",
+  },
+
+  logo: {
+    margin: 0,
+  },
+
+  search: {
+    width: "40%",
+    padding: "8px",
+    borderRadius: "5px",
+    border: "none",
+  },
+
+  navRight: {
+    display: "flex",
+    gap: "15px",
+    cursor: "pointer",
+  },
+
+  /* HERO */
+  hero: {
+    background: "#fff",
+    padding: "40px",
     textAlign: "center",
-    marginBottom: "30px",
+    marginBottom: "10px",
   },
 
-  section: {
-    maxWidth: "1200px",
-    margin: "0 auto",
+  /* CATEGORIES */
+  categories: {
+    display: "flex",
+    justifyContent: "center",
+    gap: "10px",
+    padding: "10px",
+    flexWrap: "wrap",
+  },
+
+  catBox: {
+    background: "#fff",
+    padding: "10px 15px",
+    borderRadius: "20px",
+    cursor: "pointer",
+  },
+
+  /* PRODUCTS */
+  products: {
+    padding: "20px",
   },
 
   grid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-    gap: "20px",
-    marginTop: "20px",
+    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+    gap: "15px",
   },
 
   card: {
-    border: "1px solid #ddd",
+    background: "#fff",
+    padding: "10px",
     borderRadius: "10px",
-    padding: "15px",
     textAlign: "center",
-    boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
+  },
+
+  imgBox: {
+    height: "120px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   image: {
-    width: "100%",
-    height: "150px",
-    objectFit: "cover",
-    borderRadius: "8px",
+    maxWidth: "100%",
+    maxHeight: "120px",
+    objectFit: "contain",
+  },
+
+  noImage: {
+    color: "#999",
   },
 
   price: {
     fontWeight: "bold",
-    marginTop: "10px",
   },
 
-  desc: {
-    fontSize: "14px",
-    color: "#555",
-  },
-
-  button: {
-    marginTop: "10px",
-    padding: "10px",
-    width: "100%",
-    backgroundColor: "#2e7d32",
+  btn: {
+    background: "#ff6600",
     color: "white",
     border: "none",
+    padding: "8px",
+    width: "100%",
     borderRadius: "5px",
     cursor: "pointer",
   },
