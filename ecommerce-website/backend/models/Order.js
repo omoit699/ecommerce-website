@@ -2,12 +2,22 @@ import mongoose from "mongoose";
 
 const orderSchema = new mongoose.Schema(
   {
-    userId: String,
-    shippingAddress: String,
-    items: Array,
+    products: [
+      {
+        productId: String,
+        name: String,
+        price: Number,
+        quantity: Number,
+      },
+    ],
     totalAmount: Number,
-    payment: Object,
-    status: { type: String, default: "Pending" },
+    customerName: String,
+    phone: String,
+    address: String,
+    status: {
+      type: String,
+      default: "Pending",
+    },
   },
   { timestamps: true }
 );
