@@ -1,24 +1,16 @@
 import { Router } from "express";
+import productController from "../controllers/productController.js";
+import { authMiddleware } from "../middleware/authMiddleware.js";
 
 const router = Router();
 
-// This message should appear in the Render logs when the file is loaded
-console.log("✅ products.js loaded");
+router.get("/", productController.getAll.bind(productController));
+router.get("/:id", productController.getById.bind(productController));
 
-// Test route
-router.get("/", (req, res) => {
-  res.json({
-    success: true,
-    message: "Products route is working!"
-  });
-});
+router.post("/", authMiddleware, productController.create.bind(productController));
 
-// Test route with an ID
-router.get("/:id", (req, res) => {
-  res.json({
-    success: true,
-    message: `Product ID received: ${req.params.id}`
-  });
-});
+router.put("/:id", authMiddleware, productController.update.bind(productController));
+
+router.delete("/:id", authMiddleware, productController.delete.bind(productController));
 
 export default router;
